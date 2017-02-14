@@ -1,0 +1,26 @@
+---
+- name: Interface
+  debug:
+    msg: Interface is {{ interface }}
+
+- name: Host IP from interface
+  debug:
+    msg: IP on {{ interface }} is {{ hostvars[inventory_hostname]['ansible_' + interface]['ipv4']['address'] }}
+
+- name: All Host IPs from interface
+  debug:
+    msg: IPs are {{ hostvars[item]['ansible_' + interface]['ipv4']['address'] }}
+  with_items: "{{ groups.all }}"
+
+- name: All Host IPs from interface - comma separated
+  debug:
+    msg: IPs are {% for host in groups.all -%}
+         {{ hostvars[host]['ansible_' + interface]['ipv4']['address'] }}
+         {%- if not loop.last %}, {% endif %}{% endfor %}
+
+- name: List of IPs
+  debug:
+    msg: "{{ interface }}: {% set hostnames = [] %}
+    {% for host in groups['all'] %}
+    {% set ignored = hostnames.append(hostvars[host]['ansible_' + interface]['ipv4']['address']) %}
+    {% endfor %}{{ hostnames }}"
